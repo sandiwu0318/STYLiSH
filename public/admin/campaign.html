@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Campaign Management for Stylish</title>
+    <meta charset="UTF-8">
+    <style>
+        body{
+            font-size:16px;
+            font-family:"Noto Sans TC", "微軟正黑體", "新細明體", arial, sans-serif;
+            color:#3f3a3a;line-height:2.5em;
+        }
+        textarea{
+            width:400px;height:100px;padding:5px;
+        }
+        input{
+            width:300px;padding:5px;
+        }
+        #msg{
+            color: red;
+        }
+        </style>
+</head>
+<body>
+    <h1>Create a new campaign</h1>
+    <form name='form' id='form'>
+        <label>Product ID</label>
+        <select name='product_id' id='product_id'>
+        </select>
+        <br>
+        <label>Picture</label>
+        <input type='file' name='campaign' id='campaign'>
+        <br>
+        <label>Story</label>
+        <br>
+        <textarea type='text' name='story' id='story' placeholder="Product multiline story"></textarea>
+        <br>
+        <button type="button" onclick="addNewCampaign()">Create</button>
+        <p id='msg'></p>
+    </form>
+
+    <script> 
+        //getElementById 
+        function getValue(element) {
+            const elementValue = document.getElementById(element).value;
+            return elementValue;
+        };
+        //Get images
+        function getImages(element,i) {
+            const ImageValue = document.getElementById(element).files[i];
+            return ImageValue;
+        }
+        //Use Fetch to post
+            //Add new campaign
+        function addNewCampaign() {
+            console.log(getImages('campaign',0));
+            document.querySelector('#msg').innerHTML = "";
+            let campaignData = new FormData();
+            campaignData.append('product_id', getValue('product_id'));
+            campaignData.append('campaign', getImages('campaign',0));
+            campaignData.append('story', getValue('story'));
+            return fetch('/createCampaign/addNewCampaign', {
+                method: 'POST',
+                body: campaignData,
+            }).then(res => res.json())
+            .then(res => {
+                if (res.error !== undefined) {
+                    document.querySelector('#msg').innerHTML = res.error;
+                } else {
+                    document.querySelector('#msg').innerHTML = res.success;
+                }
+            })
+        };
+            //Get product_id from db
+        function getProductId() {
+            return fetch('/createCampaign/getProductId', {
+                method: 'GET'
+            }).then(res => res.json())
+            .then(res => {
+                let product_id = document.querySelector('#product_id');
+                for (let i=0; i<res.length; i++) {
+                    let opt = document.createElement('option');
+                    opt.appendChild(document.createTextNode(res[i].id));
+                    opt.value = res[i].id;
+                    product_id.appendChild(opt);
+                }
+                
+            })
+        };
+        getProductId();
+    </script>
+</body>
+
+</html>

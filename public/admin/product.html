@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Product Management for Stylish</title>
+    <meta charset="UTF-8">
+    <style>
+        body{
+            font-size:16px;
+            font-family:"Noto Sans TC", "微軟正黑體", "新細明體", arial, sans-serif;
+            color:#3f3a3a;line-height:2.5em;
+        }
+        textarea{
+            width:400px;height:100px;padding:5px;
+        }
+        input{
+            width:300px;padding:5px;
+        }
+        .msg{
+            color: red;
+        }
+        </style>
+</head>
+<body>
+    <h1>Create a new product</h1>
+    <form name='form' id='form'>
+        <label>Category</label>
+        <select name='category' id='category'>
+            <option value='women'>Women</option>
+            <option value='men'>Men</option>
+            <option value='accessories'>Accessories</option>
+        </select>
+        <br><label>Title</label>
+        <input id='title' type='text' name='title'>
+        <br>
+        <label>Description</label>
+        <br>
+        <textarea id='description' type='text' name='description'></textarea>
+        <br>
+        <label>Price</label>
+        <input type='text' name='price' id='price'>
+        <br>
+        <label>Texture</label>
+        <input type='text' name='texture' id='texture'>
+        <br>
+        <label>Wash</label>
+        <input type='text' name='wash' id='wash' placeholder="The way we can wash">
+        <br>
+        <label>Place</label>
+        <input type='text' name='place' id='place' placeholder="Place of product">
+        <br>
+        <label>Note</label>
+        <input type='text' name='note' id='note'>
+        <br>
+        <label>Story</label>
+        <br>
+        <textarea type='text' name='story' id='story' placeholder="Product multiline story"></textarea>
+        <br>
+        <button type="button" onclick="addNewProduct()">Create</button>
+        <span id='productMsg' class='msg'></span>
+        <br>
+        <label>Main_image</label>
+        <input type='file' name='main_image' id='main_image'><br>
+        <button type="button" onclick="addMainImage()">Add new images</button>
+        <span id='mImageMsg' class='msg'></span>
+        <br>
+        <label>Other images</label>
+        <input type='file' name='other_images' id='other_images' multiple><br>
+        <button type="button" onclick="addOtherImages()">Add new images</button>
+        <span id='oImageMsg' class='msg'></span>
+        <br>
+        <label>Stock</label>
+        <select name='color_code' id='color_code'>
+            <option value='FFFFFF'>FFFFFF</option>
+            <option value='FFDDDD'>FFDDDD</option>
+            <option value='DDFFBB'>DDFFBB</option>
+        </select>
+        <select name='color_name' id='color_name'>
+            <option value='白色'>白色</option>
+            <option value='粉紅'>粉紅</option>
+            <option value='亮綠'>亮綠</option>
+        </select>
+        <select name='size' id='size'>
+            <option value='S'>S</option>
+            <option value='M'>M</option>
+            <option value='L'>L</option>
+            <option value="F">F</option>
+        </select>
+        <input type="text" name="stock" id="stock" placeholder="stock"><br>
+        <button type="button" onclick="addNewStock()">Add new stock</button>
+        <span id='stockMsg' class='msg'></span>
+    </form>
+
+    <script> 
+        //getElementById
+        function getValue(element) {
+            const elementValue = document.getElementById(element).value;
+            return elementValue;
+        };
+        //Get images
+        function getImages(element,i) {
+            const ImageValue = document.getElementById(element).files[i];
+            return ImageValue;
+        }
+        //Use Fetch to post
+            //Add new product
+        function addNewProduct() {
+            document.querySelector('#productMsg').innerHTML = "";
+            const productData = {
+                category: getValue('category'),
+                title: getValue('title'),
+                description: getValue('description'),
+                price: getValue('price'),
+                texture: getValue('texture'),
+                wash: getValue('wash'),
+                place: getValue('place'),
+                note: getValue('note'),
+                story: getValue('story'),
+            };
+            return fetch('/createProduct/addNewProduct', {
+                method: 'POST',
+                body:JSON.stringify(productData),
+                headers: {
+                    'content-type': 'application/json'
+                }
+            }).then(res => res.json())
+            .then(res => {
+                if (res.error !== undefined) {
+                    document.querySelector('#productMsg').innerHTML = res.error;
+                } else {
+                    document.querySelector('#productMsg').innerHTML = res.success;
+                }
+            })
+        };
+            //Add new stock
+        function addNewStock() {
+            document.querySelector('#stockMsg').innerHTML = "";
+            const stockData = {
+                title: getValue('title'),
+                color_code: getValue('color_code'),
+                color_name: getValue('color_name'),
+                size: getValue('size'),
+                stock: getValue('stock'),
+            };
+            return fetch('/createProduct/addNewStock', {
+                method: 'POST',
+                body:JSON.stringify(stockData),
+                headers: {
+                    'content-type': 'application/json'
+                }
+            }).then(res => res.json())
+            .then(res => {
+                if (res.error !== undefined) {
+                    document.querySelector('#stockMsg').innerHTML = res.error;
+                } else {
+                    document.querySelector('#stockMsg').innerHTML = res.success;
+                }
+            })
+        };
+        //Add main image
+        function addMainImage() {
+            document.querySelector('#mImageMsg').innerHTML = "";
+            let mainImageData = new FormData();
+            mainImageData.append('main_image', getImages('main_image',0));
+            mainImageData.append('title', getValue('title'));
+            console.log(mainImageData.main_image);
+            return fetch('/createProduct/addMainImage', {
+                method: 'POST',
+                body: mainImageData,
+                // headers: {
+                //     'content-type': 'multipart/form-data'
+                // }
+            }).then(res => res.json())
+            .then(res => {
+                if (res.error !== undefined) {
+                    document.querySelector('#mImageMsg').innerHTML = res.error;
+                } else {
+                    document.querySelector('#mImageMsg').innerHTML = res.success;
+                }
+            })
+        };
+        //Add other images
+        function addOtherImages() {
+            document.querySelector('#oImageMsg').innerHTML = "";
+            let otherImageData = new FormData();
+            otherImageData.append('other_images', getImages('other_images',0));
+            otherImageData.append('other_images', getImages('other_images',1));
+            otherImageData.append('other_images', getImages('other_images',2));
+            otherImageData.append('title', getValue('title'));
+            return fetch('/createProduct/addOtherImages', {
+                method: 'POST',
+                body: otherImageData,
+                // headers: {
+                //     'content-type': 'multipart/form-data'
+                // }
+            }).then(res => res.json())
+            .then(res => {
+                if (res.error !== undefined) {
+                    document.querySelector('#oImageMsg').innerHTML = res.error;
+                } else {
+                    document.querySelector('#oImageMsg').innerHTML = res.success;
+                }
+            })
+        };
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,106 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Dashboard for Stylish</title>
+    <meta charset="UTF-8">
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <style>
+        .info-container {
+            width: 50%
+        }
+        #number {
+            font-size: 50px;
+            margin: auto;
+        }
+
+    </style>
+</head>
+<body>
+    <div id="container" style="display: flex; flex-wrap: wrap">
+        <div id="number" class="info-container"></div>
+        <div id="pie" class="info-container"></div>
+        <div id="chart" class="info-container"></div>
+        <div id="bar" class="info-container"></div>
+    </div>
+    <script src="http://localhost:9000/socket.io/socket.io.js"></script>
+    <script>
+        const plot = function (res) {
+            const sum = res.data.sum;
+                document.querySelector("#number").innerHTML = `Total Revenue: <br>${sum}`
+                //Pie
+                const pieRawData = res.data.color;
+                const pieLabels = pieRawData.map( i => i.colorName);
+                const pieValues = pieRawData.map( i => i.count);
+                const pieColors = pieRawData.map( i => i.colorCode);
+                const pieData = [{
+                    values: pieValues,
+                    labels: pieLabels,
+                    marker: {
+                        colors: pieColors
+                    },
+                    type: 'pie'
+                }];
+                const pieLayout = {
+                    title: 'Product sold percentage in different colors',
+                    height: 400,
+                    width: 500
+                };
+                Plotly.newPlot('pie', pieData, pieLayout);
+                
+                //Chart
+                const chartRawData = res.data.price;
+                const chartTrace = {
+                    x: chartRawData,
+                    type: 'histogram',
+                }
+                const chartLayout = {
+                    title: 'Product sold quantity in different price range',
+                    xaxis: {
+                        title: 'Price Range',
+                        showgrid: false,
+                        zeroline: false
+                    },
+                    yaxis: {
+                        title: 'Quantity',
+                    }
+                }
+                const chartData = [chartTrace];
+                Plotly.newPlot('chart', chartData, chartLayout);
+                
+                //Bar
+                const barRawData = res.data.size;
+                const barData = res.data.size.map( d => ({
+                        x: d.ids.map(id => `product ${id}`),
+                        y: d.count,
+                        name: d.size,
+                        type: 'bar'
+                    }));
+                const barLayout = {
+                    title: 'Quantity of top 5 sold products in different sizes',
+                    yaxis: {
+                        title: 'Quantity',
+                    },
+                    barmode: 'stack'
+                };
+                Plotly.newPlot('bar', barData, barLayout);
+                document.querySelector('#pie').style = 'width: 50%'
+        }
+        // const url = 'http://localhost:9000';
+        // const socket = io(url);
+        //Get data from server
+        function getData() {
+            return fetch('/api/1.0/dashboard', {
+                method: 'GET'
+            }).then(res => res.json())
+            .then(res => {
+                plot(res);
+                //Number
+            })
+        };        
+        getData();
+        
+    </script>
+</body>
+
+</html>
