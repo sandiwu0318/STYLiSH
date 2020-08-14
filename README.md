@@ -45,13 +45,10 @@
 ## Main features
 * View product list and product details
 * Choose different color and sizes of products
-
-![](https://i.imgur.com/rqX3syV.gif)
-
 * Enter credit card information to check out
 
-![](https://i.imgur.com/O6WjBUD.gif)
-
+![](https://i.imgur.com/9SSoi4b.jpg)
+![](https://i.imgur.com/Y9xflAz.jpg)
 
 ## Demo account
 * Name: Demo1
