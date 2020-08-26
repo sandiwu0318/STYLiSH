@@ -40,7 +40,7 @@
 * Design Pattern: MVC
 ## Architecture
 
-![](https://i.imgur.com/XvdkDIT.jpg)
+![](https://i.imgur.com/OD4l6eC.jpg)
 
 ## Main features
 * View product list and product details
